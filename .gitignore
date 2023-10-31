@@ -1,2 +1,4 @@
 data/
-git_key
+node_modules/
+package-lock.json
+package.json

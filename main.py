@@ -174,7 +174,7 @@ if __name__ == '__main__':
         #Export in onnx format
         model.eval()
         dummy_input = torch.randn(1, 1, 28, 28).to('cuda')
-        torch.onnx.export(model, dummy_input, "emnist.onnx", export_params=True)
+        torch.onnx.export(model, dummy_input, "emnist.onnx", export_params=True, opset_version=9 )
 
     elif (choice == "onnx"):
         import onnxruntime as ort
@@ -215,7 +215,7 @@ if __name__ == '__main__':
                                 T.Grayscale(num_output_channels=1),
                             ])
         for i in ['A','B','C','D']:
-            img_path = 'please_return_' + i + '.png'
+            img_path = 'manual_tests/please_return_' + i + '.png'
             img = Image.open(img_path)
 
             img_tensor = transform(img).unsqueeze(0).to('cuda')
@@ -230,4 +230,4 @@ if __name__ == '__main__':
             # Display the image
             plt.imshow(pil_image, cmap='gray')  # Ensure the colormap is set to gray
             plt.title(f'Label: {predicted_letter}')
-            plt.show()
+            plt.show()  
