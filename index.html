@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <link rel="shortcut icon" href="#">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMNIST_CNN</title>
+    <style>
+        canvas {
+            border: 1px solid #000;
+            width: 280px;
+            height: 280px;
+        }
+    </style>
+  </head>
+  <h1>Letter recognition :</h1>
+  <body>
+
+    <canvas id="myCanvas" width="280" height="280"></canvas>
+    <button onclick="resetCanvas()">Reset</button>
+    <button onclick="Recognize()">Recognize</button>
+    <p id="displayText">will take the prediction value</p>
+
+    <script src="https://cdn.jsdelivr.net/npm/onnxjs/dist/onnx.min.js"></script>
+
+    <script src="scriptJS.js"></script>
+</body>
+   
+</html>
