@@ -40,11 +40,17 @@ function draw(e) {
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mouseup', stopDrawing);
 canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseout', stopDrawing);
+
+canvas.addEventListener('touchstart', startDrawing);
+canvas.addEventListener('touchend', stopDrawing);
+canvas.addEventListener('touchmove', draw);
 
 // Reset the canvas
 function resetCanvas() {
     ctx.fillStyle = '#000'; // Set color back to white
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    displayElement.textContent = "execute to recognition to start";
 }
 
 // Future application function
@@ -107,7 +113,7 @@ async function predict() {
             transposedInput[x * 28 + y] = input[y * 28 +x]
         }    
     }
-    let TensorInput = new onnx.Tensor(transposedInput, 'float32',[1,1,28,28])
+    let TensorInput = new onnx.Tensor(transposedInput, 'float32',[1,1,28,28]);
 
     let outputMap = await model.run([TensorInput]);
     
@@ -116,6 +122,6 @@ async function predict() {
     // Retourner la classe avec la plus haute probabilité
 
     let predict_char = String.fromCharCode(outputData.indexOf(Math.max(...outputData))+64);
-    displayElement.textContent = predict_char;
+    displayElement.textContent = "I think that you draw a(n) : " + predict_char;
     return outputData.indexOf(Math.max(...outputData));
   }
