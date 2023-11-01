@@ -48,6 +48,14 @@ canvas.addEventListener('touchstart', startDrawing);
 canvas.addEventListener('touchend', stopDrawing);
 canvas.addEventListener('touchmove', draw);
 
+canvas.addEventListener('touchstart', function (e) {
+    e.preventDefault();
+});
+
+canvas.addEventListener('touchmove', function (e) {
+    e.preventDefault();
+});
+
 // Reset the canvas
 function resetCanvas() {
     ctx.fillStyle = '#000'; // Set color back to white
