@@ -41,20 +41,6 @@ class EMNISTDataset(Dataset):
         self.device = device
         self.xs = torch.load(self.path_xs, map_location=self.device)
         self.ys = torch.load(self.path_ys, map_location=self.device)
-
-
-        # Retrieve an image and label
-        index = 20
-        image = self.xs[index]
-        label = self.ys[index]
-        # Convert tensor image to PIL image for displaying
-        img_flip = T.functional.rotate(image, -90)
-        corrected_image = T.functional.hflip(img_flip)
-        pil_image = T.ToPILImage()(corrected_image) # "L" mode is for grayscale
-        # Display the image
-        plt.imshow(pil_image, cmap='gray')  # Ensure the colormap is set to gray
-        plt.title(f'Label: {chr(label + 64)}')
-        plt.show()
         
     def __len__(self) -> int:
         return len(self.xs)
@@ -141,19 +127,17 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     import torch
     import torch.onnx
-    import numpy as np
-
-    def plot_image(image_path):
-        img = Image.open(image_path)
-        plt.imshow(img, cmap='gray')
-        plt.title(image_path)
-        plt.show()
-
-
-
-    choice = input("Train or Else: ").lower()
-    if choice == "train":
+    
+    
+    if torch.cuda.is_available() :
+        print('a GPU has been found and will be used for the operations')
         device = torch.device('cuda')
+    else :
+        print('no GPU founded so this code is running on your CPU')
+        device = torch.device('cpu')
+    
+    if input("What do you whant to do ? (type train if anything else will exicute test mode): ").lower() == "train":
+        
         epochs = 3
         batch_size = 512
         lr = 1e-2
@@ -170,55 +154,33 @@ if __name__ == '__main__':
         model.fit(train_loader, optimizer, scheduler, epochs)
         model.test(test_loader)
         torch.save(model.state_dict(), 'emnist_cnn.pt')
+        print('The model have been innitialized, trained and save in the file emnist_cnn.pt')
         
         #Export in onnx format
         model.eval()
-        dummy_input = torch.randn(1, 1, 28, 28).to('cuda')
+        dummy_input = torch.randn(1, 1, 28, 28).to(device)
         torch.onnx.export(model, dummy_input, "emnist.onnx", export_params=True, opset_version=9 )
-
-    elif (choice == "onnx"):
-        import onnxruntime as ort
-        img_path = 'testb.jpg'
-        img = Image.open(img_path)
-
-        transform = T.Compose([ T.ToTensor(),
-                                # T.Normalize((0.5, ), (0.5, )),
-                                T.Grayscale(num_output_channels=1),
-                            ])
-        
-        img_tensor = transform(img).unsqueeze(0).numpy()
-        # Load ONNX model
-        ort_session = ort.InferenceSession("emnist.onnx")
-
-        # Run inference
-        ort_inputs = {ort_session.get_inputs()[0].name: img_tensor}
-        ort_outs = ort_session.run(None, ort_inputs)
-
-        # Process the output (assuming a single output, adapt as necessary)
-        prediction = ort_outs[0]
-        predicted_class = np.argmax(prediction)
-
-        # Print or return the predicted class
-        print(f"Predicted Class: {chr(predicted_class + 64)}")
-        
+        print('The model have been also exported in onnx format')
 
     else:
-        model = CNN().to('cuda')
+        model = CNN().to(device)
 
         # Load the trained state dictionary
-        model.load_state_dict(torch.load('emnist_cnn.pt'))
-        model.eval()
+        if os.path.exists('emnist_cnn.pt'):
+            model.load_state_dict(torch.load('emnist_cnn.pt'))
+            model.eval()
+        else :
+            print('the model is not yet defined, please restart the program in train mode...')
+            exit()
 
         # Load and process the image
-        transform = T.Compose([ T.ToTensor(),
-                                # T.Normalize((0.5, ), (0.5, )),
-                                T.Grayscale(num_output_channels=1),
-                            ])
+        transform = T.Compose([ T.ToTensor(), T.Grayscale(num_output_channels=1)])
+
         for i in ['A','B','C','D']:
             img_path = 'manual_tests/please_return_' + i + '.png'
             img = Image.open(img_path)
 
-            img_tensor = transform(img).unsqueeze(0).to('cuda')
+            img_tensor = transform(img).unsqueeze(0).to(device)
 
             corrected_image = T.functional.hflip(img_tensor)
             img_flip = T.functional.rotate(corrected_image, 90)
@@ -229,5 +191,5 @@ if __name__ == '__main__':
             pil_image = T.ToPILImage()(img_tensor.squeeze(0))
             # Display the image
             plt.imshow(pil_image, cmap='gray')  # Ensure the colormap is set to gray
-            plt.title(f'Label: {predicted_letter}')
+            plt.title(f'Label detected = {predicted_letter}')
             plt.show()  
