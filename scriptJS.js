@@ -29,10 +29,13 @@ function draw(e) {
     ctx.lineCap = 'round';
     ctx.strokeStyle = '#FFF'; // Set drawing color to black
 
-    ctx.lineTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    ctx.lineTo(clientX - canvas.offsetLeft, clientY - canvas.offsetTop);
     ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop);
+    ctx.moveTo(clientX - canvas.offsetLeft, clientY - canvas.offsetTop);
 }
 
 // Event listeners for drawing
@@ -86,7 +89,6 @@ async function predict() {
     }
   
     let input = new Float32Array(28 * 28);
-    //let array2D = [];
     for (let i = 0; i < imgData.length; i += 4) {
         let grayscale = 0
         if (imgData[i]!=0)  {grayscale = 255}
