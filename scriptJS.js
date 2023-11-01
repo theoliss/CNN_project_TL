@@ -3,7 +3,6 @@ const ctx = canvas.getContext('2d');
 
 const displayElement = document.getElementById('displayText');
 
-
 loadModel()
 
 // Initialize canvas
@@ -106,7 +105,6 @@ async function predict() {
   
     }
   
-
     let transposedInput = new Float32Array(28*28)
     for (let y = 0; y < 28; y++){
         for (let x = 0; x < 28; x++){
